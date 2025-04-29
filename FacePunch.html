@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Wut rauslassen</title>
+  <style>
+    @keyframes punch {
+      0% { transform: rotate(-45deg) translateX(0); opacity: 0; }
+      50% { transform: rotate(-45deg) translateX(-120px) scale(1.1); opacity: 1; }
+      100% { transform: rotate(-45deg) translateX(0) scale(1); opacity: 0; }
+    }
+
+    @keyframes speechFade {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes vibrate {
+      0% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(2px, -2px); }
+      60% { transform: translate(-2px, -2px); }
+      80% { transform: translate(2px, 2px); }
+      100% { transform: translate(0); }
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('hintergrund.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #wutlevel {
+      position: absolute;
+      top: 20px;
+      font-size: 22px;
+      color: white;
+      font-weight: bold;
+      background: rgba(0,0,0,0.5);
+      padding: 10px 20px;
+      border-radius: 15px;
+      z-index: 100;
+    }
+
+    #ko-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 50px;
+      font-weight: bold;
+      color: red;
+      display: none;
+      z-index: 200;
+    }
+
+    #face-container {
+      position: relative;
+      width: 200px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #speech {
+      position: absolute;
+      top: -60px;
+      background: white;
+      color: black;
+      padding: 10px 15px;
+      border-radius: 15px;
+      font-weight: bold;
+      display: none;
+      z-index: 10;
+      animation: speechFade 0.5s ease forwards;
+    }
+
+    #face {
+      width: 200px;
+      height: 200px;
+      z-index: 1;
+      object-fit: cover;
+    }
+
+    #body {
+      width: 140px;
+      height: auto;
+      z-index: 1;
+      margin-top: -70px;
+    }
+
+    #punch-effect {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200px;
+      height: 200px;
+      display: none;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    #glove {
+      position: absolute;
+      width: 150px;
+      left: 110px;
+      top: 10px;
+      display: none;
+      z-index: 3;
+      transform: rotate(-45deg);
+      transform-origin: center center;
+      opacity: 0;
+    }
+
+    .animate-punch {
+      animation: punch 0.4s ease-in-out;
+    }
+
+    .vibrate {
+      animation: vibrate 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div id="wutlevel">Wutlevel: 0</div>
+  <div id="ko-text">K.O.!!!</div>
+
+  <div id="face-container">
+    <div id="speech">Aua! Warum haust du mich?!</div>
+    <img id="face" src="passbild.png" alt="Gesicht">
+    <img id="body" src="Körper.png" alt="Körper">
+    <img id="glove" src="boxhandschuh.png" alt="Boxhandschuh">
+    <canvas id="punch-canvas" width="200" height="200" style="position:absolute; top:0; left:0; z-index:2; display:none;"></canvas>
+  </div>
+
+  <audio id="punch-sound" src="punch.mp3"></audio>
+
+  <script>
+    const face = document.getElementById("face");
+    const faceContainer = document.getElementById("face-container");
+    const canvas = document.getElementById("punch-canvas");
+    const ctx = canvas.getContext("2d");
+    const speech = document.getElementById("speech");
+    const sound = document.getElementById("punch-sound");
+    const glove = document.getElementById("glove");
+    const body = document.getElementById("body");
+    const wutlevel = document.getElementById("wutlevel");
+    const koText = document.getElementById("ko-text");
+
+    let level = 0;
+
+    const punchGif = new Image();
+    punchGif.src = "punch.gif";
+
+    const sprueche = [
+      "Aua canim, das tut weh!",
+      "Nicht ins Gesicht!",
+      "Ich ruf gleich Mamiiii!",
+      "Nicht schon wieder!",
+      "Ich liebe dich doch!",
+      "Du bist gemein!"
+    ];
+
+    face.addEventListener("click", () => {
+      level++;
+      wutlevel.textContent = `Wutlevel: ${level}`;
+
+      if (level === 10) {
+        koText.style.display = "block";
+        setTimeout(() => {
+          koText.style.display = "none";
+          level = 0;
+          wutlevel.textContent = `Wutlevel: 0`;
+        }, 2000);
+      }
+
+      const spruch = sprueche[Math.floor(Math.random() * sprueche.length)];
+      speech.textContent = spruch;
+      speech.style.display = "block";
+      speech.style.animation = "speechFade 0.5s ease forwards";
+      canvas.style.display = "block";
+
+      glove.style.display = "block";
+      glove.classList.remove("animate-punch");
+      void glove.offsetWidth;
+      glove.classList.add("animate-punch");
+
+      faceContainer.classList.add("vibrate");
+      body.classList.add("vibrate");
+
+      sound.currentTime = 0;
+      sound.play();
+
+      const gif = new Image();
+      gif.src = punchGif.src + "?" + new Date().getTime();
+      gif.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(gif, 0, 0, canvas.width, canvas.height);
+      };
+
+      setTimeout(() => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.style.display = "none";
+        speech.style.display = "none";
+        glove.style.display = "none";
+        faceContainer.classList.remove("vibrate");
+        body.classList.remove("vibrate");
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
