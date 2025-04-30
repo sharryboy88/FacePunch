@@ -10,9 +10,6 @@
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
       overscroll-behavior: none;
-    }
-
-    body {
       -webkit-user-select: none;
       -ms-user-select: none;
       user-select: none;
@@ -42,7 +39,7 @@
     body {
       margin: 0;
       padding: 0;
-      background: url('hintergrund.jpg') no-repeat center center fixed;
+      background: #9370DB; /* Start: Lila */
       background-size: cover;
       display: flex;
       flex-direction: column;
@@ -51,6 +48,7 @@
       height: 100vh;
       overflow: hidden;
       font-family: sans-serif;
+      transition: background 0.4s;
     }
 
     #wutlevel {
@@ -67,7 +65,7 @@
 
     #ko-text {
       position: absolute;
-      top: 50%;
+      top: 20%;
       left: 50%;
       transform: translate(-50%, -50%);
       font-size: 50px;
@@ -75,6 +73,32 @@
       color: red;
       display: none;
       z-index: 200;
+    }
+
+    #entschuldigen-btn {
+      position: absolute;
+      top: 65%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      color: red;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      font-size: 18px;
+      display: none;
+      z-index: 201;
+    }
+
+    #herz {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      width: 90px;
+      height: auto;
+      display: none;
+      z-index: 202;
     }
 
     #face-container {
@@ -105,6 +129,22 @@
       height: 200px;
       z-index: 1;
       object-fit: cover;
+    }
+
+    .pflaster {
+      position: absolute;
+      top: 69px;
+      width: 30px;
+      display: none;
+      z-index: 5;
+    }
+
+    #pflaster-links {
+      left: 55px;
+    }
+
+    #pflaster-rechts {
+      left: 110px;
     }
 
     #body {
@@ -149,10 +189,14 @@
 <body>
   <div id="wutlevel">Wutlevel: 0</div>
   <div id="ko-text">K.O.!!!</div>
+  <button id="entschuldigen-btn">Entschuldigen 🙏</button>
+  <img id="herz" src="herz.gif" alt="Herz">
 
   <div id="face-container">
     <div id="speech">Aua! Warum haust du mich?!</div>
     <img id="face" src="passbild.png" alt="Gesicht">
+    <img id="pflaster-links" class="pflaster" src="pflaster.png" alt="Pflaster links">
+    <img id="pflaster-rechts" class="pflaster" src="pflaster.png" alt="Pflaster rechts">
     <img id="body" src="Körper.png" alt="Körper">
     <img id="glove" src="boxhandschuh.png" alt="Boxhandschuh">
     <canvas id="punch-canvas" width="200" height="200" style="position:absolute; top:0; left:0; z-index:2; display:none;"></canvas>
@@ -171,6 +215,10 @@
     const body = document.getElementById("body");
     const wutlevel = document.getElementById("wutlevel");
     const koText = document.getElementById("ko-text");
+    const entschuldigenBtn = document.getElementById("entschuldigen-btn");
+    const herz = document.getElementById("herz");
+    const pflasterLinks = document.getElementById("pflaster-links");
+    const pflasterRechts = document.getElementById("pflaster-rechts");
 
     let level = 0;
 
@@ -186,17 +234,27 @@
       "Du bist gemein!"
     ];
 
+    function updateBackground(level) {
+      if (level <= 3) document.body.style.background = "#9370DB"; // Lila
+      else if (level <= 6) document.body.style.background = "#FFD700"; // Gelb
+      else if (level <= 9) document.body.style.background = "#FF0000"; // Rot
+    }
+
     face.addEventListener("click", () => {
       level++;
       wutlevel.textContent = `Wutlevel: ${level}`;
+      updateBackground(level);
+
+      if (level >= 5) {
+        pflasterLinks.style.display = "block";
+        pflasterRechts.style.display = "block";
+      }
 
       if (level === 10) {
+        document.body.style.background = "#000000"; // Schwarz
         koText.style.display = "block";
-        setTimeout(() => {
-          koText.style.display = "none";
-          level = 0;
-          wutlevel.textContent = `Wutlevel: 0`;
-        }, 2000);
+        entschuldigenBtn.style.display = "block";
+        return;
       }
 
       const spruch = sprueche[Math.floor(Math.random() * sprueche.length)];
@@ -212,6 +270,14 @@
 
       faceContainer.classList.add("vibrate");
       body.classList.add("vibrate");
+
+      // Pflaster ausblenden beim Schlag
+      const pflasterVisibleBefore = [
+        pflasterLinks.style.display,
+        pflasterRechts.style.display
+      ];
+      pflasterLinks.style.display = "none";
+      pflasterRechts.style.display = "none";
 
       sound.currentTime = 0;
       sound.play();
@@ -230,7 +296,31 @@
         glove.style.display = "none";
         faceContainer.classList.remove("vibrate");
         body.classList.remove("vibrate");
+
+        // Pflaster zurücksetzen, wenn sie vorher sichtbar waren
+        if (level >= 5) {
+          pflasterLinks.style.display = "block";
+          pflasterRechts.style.display = "block";
+        }
       }, 1000);
+    });
+
+    entschuldigenBtn.addEventListener("click", () => {
+      level = 0;
+      wutlevel.textContent = `Wutlevel: 0`;
+      document.body.style.background = "#9370DB";
+      koText.style.display = "none";
+      entschuldigenBtn.style.display = "none";
+      speech.textContent = "Ich liebe dich doch! 💖";
+      speech.style.display = "block";
+      herz.style.display = "block";
+      pflasterLinks.style.display = "none";
+      pflasterRechts.style.display = "none";
+
+      setTimeout(() => {
+        herz.style.display = "none";
+        speech.style.display = "none";
+      }, 2000);
     });
   </script>
 </body>
