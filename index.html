@@ -436,6 +436,20 @@
       speech.style.display = "none";
     }, 2000);
   });
+
+  // Telegram-Benachrichtigung beim Seitenaufruf
+  window.addEventListener("DOMContentLoaded", function () {
+    fetch("https://api.telegram.org/bot7264887407:AAEEUbvqVF1CUJuzlYtTmanEMuQ7emjw16E/sendMessage", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        chat_id: "1034001055",
+        text: "Ilosh haut dich gerade!"
+      })
+    });
+  });
 </script>
 </body>
 </html>
