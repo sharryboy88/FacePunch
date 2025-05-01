@@ -53,7 +53,7 @@
 
     #wutlevel {
       position: absolute;
-      top: 20px;
+      top: 10px;
       font-size: 22px;
       color: white;
       font-weight: bold;
@@ -62,6 +62,64 @@
       border-radius: 15px;
       z-index: 100;
     }
+
+    #emotion-bar {
+  position: absolute;
+  top: 60px;
+  width: 200px;
+  height: 25px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding:0 10px;
+  font-size: 20px;
+  color: white;
+  font-weight: bold;
+  z-index: 100;
+  overflow: hidden;
+}
+
+
+    #emotion-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0;
+  background: limegreen;
+  border-radius: 15px;
+  z-index: 1;
+  transition: width 0.3s ease;
+}
+
+
+    #emotion-bar span:nth-child(2) {  /* 😐 */
+  width: 25px;
+  text-align: left;
+  margin-left: -10px;
+  z-index: 101;
+}
+
+#emotion-bar span:nth-child(3) {  /* 😠 */
+  width: 25px;
+  text-align: center;
+  z-index: 101;
+}
+
+#emotion-bar span:nth-child(4) {  /* 😡 */
+  width: 25px;
+  text-align: center;
+  z-index: 101;
+}
+
+#emotion-bar span:nth-child(5) {  /* 💀 */
+  width: 20px;
+  text-align: right;
+  margin-right: -4px;
+  z-index: 101;
+}
 
     #ko-text {
       position: absolute;
@@ -211,7 +269,15 @@
   <div id="wutlevel">Wutlevel: 0</div>
   <div id="ko-text">K.O.!!!</div>
   <button id="entschuldigen-btn">Entschuldigen 🙏</button>
-  <img id="herz" src="herz.gif" alt="Herz">
+  <div id="emotion-bar">
+    <div id="emotion-fill"></div>
+    <span>😐</span>
+    <span>😠</span>
+    <span>😡</span>
+    <span>💀</span>
+  </div>
+
+  <div id="emotion-indicator"></div>
 
   <div id="face-container">
     <div id="speech">Aua! Warum haust du mich?!</div>
@@ -228,138 +294,148 @@
   <audio id="punch-sound" src="punch.mp3"></audio>
 
   <script>
-    const face = document.getElementById("face");
-    const faceContainer = document.getElementById("face-container");
-    const canvas = document.getElementById("punch-canvas");
-    const ctx = canvas.getContext("2d");
-    const speech = document.getElementById("speech");
-    const sound = document.getElementById("punch-sound");
-    const glove = document.getElementById("glove");
-    const body = document.getElementById("body");
-    const wutlevel = document.getElementById("wutlevel");
-    const koText = document.getElementById("ko-text");
-    const entschuldigenBtn = document.getElementById("entschuldigen-btn");
-    const herz = document.getElementById("herz");
-    const pflasterLinks = document.getElementById("pflaster-links");
-    const pflasterRechts = document.getElementById("pflaster-rechts");
-    const blauesAuge = document.getElementById("blauesauge");
-    const blut = document.getElementById("blut");
+  const emotionFill = document.getElementById("emotion-fill");
+  const face = document.getElementById("face");
+  const faceContainer = document.getElementById("face-container");
+  const canvas = document.getElementById("punch-canvas");
+  const ctx = canvas.getContext("2d");
+  const speech = document.getElementById("speech");
+  const sound = document.getElementById("punch-sound");
+  const glove = document.getElementById("glove");
+  const body = document.getElementById("body");
+  const wutlevel = document.getElementById("wutlevel");
+  const koText = document.getElementById("ko-text");
+  const entschuldigenBtn = document.getElementById("entschuldigen-btn");
+  const herz = document.getElementById("herz");
+  const pflasterLinks = document.getElementById("pflaster-links");
+  const pflasterRechts = document.getElementById("pflaster-rechts");
+  const blauesAuge = document.getElementById("blauesauge");
+  const blut = document.getElementById("blut");
 
-    let level = 0;
-    const punchGif = new Image();
-    punchGif.src = "punch.gif";
+  let level = 0;
+  const punchGif = new Image();
+  punchGif.src = "punch.gif";
 
-    const sprueche = [
-      "Aua canim, das tut weh!",
-      "Nicht ins Gesicht!",
-      "Ich ruf gleich Mamiiii!",
-      "Nicht schon wieder!",
-      "Ich liebe dich doch!",
-      "Du bist gemein!"
-    ];
+  const sprueche = [
+    "Aua canim, das tut weh!",
+    "Nicht ins Gesicht!",
+    "Ich ruf gleich Mamiiii!",
+    "Nicht schon wieder!",
+    "Ich liebe dich doch!",
+    "Du bist gemein!"
+  ];
 
-    function updateBackground(level) {
-      if (level <= 7) document.body.style.background = "#9370DB";
-      else if (level <= 13) document.body.style.background = "#FFD700";
-      else if (level <= 19) document.body.style.background = "#FF0000";
-      else if (level >= 20) document.body.style.background = "#000000";
+  function updateBackground(level) {
+    if (level <= 7) document.body.style.background = "#9370DB";
+    else if (level <= 13) document.body.style.background = "#FFD700";
+    else if (level <= 19) document.body.style.background = "#FF0000";
+    else if (level >= 20) document.body.style.background = "#000000";
+  }
+
+  function updateEmotionFill(level) {
+    const maxLevel = 20;
+    const barWidth = 220;
+    const fillWidth = Math.min((level / maxLevel) * barWidth, barWidth);
+    emotionFill.style.width = `${fillWidth}px`;
+  }
+
+  function updateFace(level) {
+    if (level <= 7) {
+      face.src = "gesicht-normal.png";
+      face.style.top = "-10px";
+    } else if (level <= 13) {
+      face.src = "gesicht-angst.png";
+      face.style.top = "-20px";
+    } else if (level <= 19) {
+      face.src = "gesicht-traurig.png";
+      face.style.top = "-10px";
+    } else {
+      face.src = "gesicht-ko.png";
+      face.style.top = "-10px";
+      pflasterLinks.style.left = "55px";
+      pflasterRechts.style.left = "100px";
     }
 
-    function updateFace(level) {
-      if (level <= 7) {
-        face.src = "gesicht-normal.png";
-        face.style.top = "-10px";
-      } else if (level <= 13) {
-        face.src = "gesicht-angst.png";
-        face.style.top = "-20px";
-      } else if (level <= 19) {
-        face.src = "gesicht-traurig.png";
-        face.style.top = "-10px";
-      } else {
-        face.src = "gesicht-ko.png";
-        face.style.top = "-10px";
-        pflasterLinks.style.left = "55px";
-        pflasterRechts.style.left = "100px";
+    blauesAuge.style.display = (level >= 8 && level <= 13) ? "block" : "none";
+    blut.style.display = (level >= 14 && level <= 19) ? "block" : "none";
+    pflasterLinks.style.display = (level >= 14) ? "block" : "none";
+    pflasterRechts.style.display = (level >= 20) ? "block" : "none";
+  }
+
+  face.addEventListener("click", () => {
+    if (level >= 20) return;
+
+    level++;
+    wutlevel.textContent = `Wutlevel: ${level}`;
+    updateBackground(level);
+    updateFace(level);
+    updateEmotionFill(level);
+
+    const spruch = sprueche[Math.floor(Math.random() * sprueche.length)];
+    speech.textContent = spruch;
+    speech.style.display = "block";
+    speech.style.animation = "speechFade 0.5s ease forwards";
+    canvas.style.display = "block";
+
+    glove.style.display = "block";
+    glove.classList.remove("animate-punch");
+    void glove.offsetWidth;
+    glove.classList.add("animate-punch");
+
+    faceContainer.classList.add("vibrate");
+    body.classList.add("vibrate");
+
+    sound.currentTime = 0;
+    sound.play();
+
+    blauesAuge.style.display = "none";
+    pflasterLinks.style.display = "none";
+    pflasterRechts.style.display = "none";
+
+    const gif = new Image();
+    gif.src = punchGif.src + "?" + new Date().getTime();
+    gif.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(gif, 0, 0, canvas.width, canvas.height);
+    };
+
+    setTimeout(() => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvas.style.display = "none";
+      speech.style.display = "none";
+      glove.style.display = "none";
+      faceContainer.classList.remove("vibrate");
+      body.classList.remove("vibrate");
+      updateFace(level);
+
+      if (level >= 20) {
+        koText.style.display = "block";
+        entschuldigenBtn.style.display = "block";
       }
+    }, 600);
+  });
 
-      blauesAuge.style.display = (level >= 8 && level <= 13) ? "block" : "none";
-      blut.style.display = (level >= 14 && level <= 19) ? "block" : "none";
+  entschuldigenBtn.addEventListener("click", () => {
+    level = 0;
+    updateFace(level);
+    wutlevel.textContent = `Wutlevel: 0`;
+    document.body.style.background = "#9370DB";
+    koText.style.display = "none";
+    entschuldigenBtn.style.display = "none";
+    speech.textContent = "Ich liebe dich doch! 💖";
+    speech.style.display = "block";
+    herz.style.display = "block";
+    pflasterLinks.style.display = "none";
+    pflasterRechts.style.display = "none";
+    blauesAuge.style.display = "none";
+    blut.style.display = "none";
+    updateEmotionFill(0);
 
-      pflasterLinks.style.display = (level >= 14) ? "block" : "none";
-      pflasterRechts.style.display = (level >= 20) ? "block" : "none";
-    }
-
-    face.addEventListener("click", () => {
-      if (level >= 20) return;
-      level++;
-      wutlevel.textContent = `Wutlevel: ${level}`;
-      updateBackground(level);
-      updateFace(level);
-
-      const spruch = sprueche[Math.floor(Math.random() * sprueche.length)];
-      speech.textContent = spruch;
-      speech.style.display = "block";
-      speech.style.animation = "speechFade 0.5s ease forwards";
-      canvas.style.display = "block";
-
-      glove.style.display = "block";
-      glove.classList.remove("animate-punch");
-      void glove.offsetWidth;
-      glove.classList.add("animate-punch");
-
-      faceContainer.classList.add("vibrate");
-      body.classList.add("vibrate");
-
-      sound.currentTime = 0;
-      sound.play();
-
-      blauesAuge.style.display = "none";
-      pflasterLinks.style.display = "none";
-      pflasterRechts.style.display = "none";
-
-      const gif = new Image();
-      gif.src = punchGif.src + "?" + new Date().getTime();
-      gif.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(gif, 0, 0, canvas.width, canvas.height);
-      };
-
-      setTimeout(() => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        canvas.style.display = "none";
-        speech.style.display = "none";
-        glove.style.display = "none";
-        faceContainer.classList.remove("vibrate");
-        body.classList.remove("vibrate");
-        updateFace(level);
-
-        if (level === 20) {
-          koText.style.display = "block";
-          entschuldigenBtn.style.display = "block";
-        }
-      }, 600);
-    });
-
-    entschuldigenBtn.addEventListener("click", () => {
-      level = 0;
-      updateFace(level);
-      wutlevel.textContent = `Wutlevel: 0`;
-      document.body.style.background = "#9370DB";
-      koText.style.display = "none";
-      entschuldigenBtn.style.display = "none";
-      speech.textContent = "Ich liebe dich doch! 💖";
-      speech.style.display = "block";
-      herz.style.display = "block";
-      pflasterLinks.style.display = "none";
-      pflasterRechts.style.display = "none";
-      blauesAuge.style.display = "none";
-      blut.style.display = "none";
-
-      setTimeout(() => {
-        herz.style.display = "none";
-        speech.style.display = "none";
-      }, 2000);
-    });
-  </script>
+    setTimeout(() => {
+      herz.style.display = "none";
+      speech.style.display = "none";
+    }, 2000);
+  });
+</script>
 </body>
 </html>
