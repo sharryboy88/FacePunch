@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FacePunch Menü</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: url('assets/hintergrund.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: sans-serif;
+    }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 40px;
+      color: white;
+      text-shadow: 2px 2px 6px black;
+    }
+    .menu-btn {
+      font-size: 20px;
+      padding: 15px 30px;
+      margin: 15px;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      background-color: #fff;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+      transition: transform 0.2s;
+    }
+    .menu-btn:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <h1>Wähle dein Abenteuer</h1>
+  <button class="menu-btn" onclick="location.href='facepunch.html'">🥊 Hau den Sufyan</button>
+  <button class="menu-btn" onclick="location.href='mario/index.html'">👑 Rette Ilayda</button>
+</body>
+</html>
